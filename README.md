@@ -5,33 +5,34 @@
 [![Apache Spark](https://img.shields.io/badge/Engine-Apache_Spark-orange.svg)]()
 [![Docker](https://img.shields.io/badge/Deployment-Docker-blue.svg)]()
 
-An end-to-end, enterprise-grade Big Data streaming & batch analytics pipeline designed to ingest, process, transform, and analyze multi-million record datasets of **New York City Yellow Taxi** trips in real time.
+An end-to-end, enterprise-grade Big Data streaming and batch analytics pipeline designed to ingest, process, transform, and store multi-million record datasets of **New York City Yellow Taxi** trips in real time.
 
 ---
 
 ## 📑 Table of Contents
-* [Overview & Business Motivation](#-overview--business-motivation)
+* [Overview & Business Context](#-overview--business-context)
 * [System Architecture](#-system-architecture)
 * [Tech Stack & Infrastructure](#-tech-stack--infrastructure)
+* [Detailed Configurations](#-detailed-configurations)
 * [Data Pipeline Workflow](#-data-pipeline-workflow)
-* [Key Metrics & Analytics](#-key-metrics--analytics)
+* [Troubleshooting & Common Issues](#-troubleshooting--common-issues)
+* [Setup & Step-by-Step Execution Guide](#-setup--step-by-step-execution-guide)
+* [Verification & Testing](#-verification--testing)
 * [Repository Structure](#-repository-structure)
-* [Setup & Installation Guide](#-setup--installation-guide)
-* [Future Roadmap](#-future-roadmap)
 
 ---
 
-## 🎯 Overview & Business Motivation
+## 🎯 Overview & Business Context
 
 Processing urban transportation data requires high throughput, low latency, and efficient memory management. 
 
-This project solves the problem of analyzing large-scale NYC Taxi transactions by creating a fully containerized microservices architecture. It allows data engineers and analysts to monitor trip frequencies, high-demand pickup zones, tip percentages, and fare spikes live as transactions occur.
+This project addresses the challenge of processing large-scale NYC Taxi transactions by implementing a fully containerized microservices architecture. It enables real-time monitoring of trip frequencies, high-demand pickup zones, tip percentages, fare dynamics, and system health metrics.
 
 ---
 
 ## 📐 System Architecture
 
-Below is the conceptual flow of the distributed pipeline:
+Below is the end-to-end data processing workflow:
 
 ```text
 ┌────────────────────────┐
@@ -52,6 +53,14 @@ Below is the conceptual flow of the distributed pipeline:
             ├───────────────────────────────┐
             ▼                               ▼
 ┌────────────────────────┐     ┌────────────────────────┐
-│ PostgreSQL / TimeSeries│     │ Analytical Dashboards  │
-│  (Persisted Storage)   │     │ (Real-Time Metrics UI) │
+│ PostgreSQL Data Warehouse│   │ Real-Time Metrics UI   │
+│  (Persisted Storage)   │     │ (Dashboard Engine)     │
 └────────────────────────┘     └────────────────────────┘
+
+Component,Technology,Role / Description
+Event Broker,Apache Kafka,High-throughput streaming message buffer
+Cluster Manager,Apache Zookeeper,Service coordination and Kafka state management
+Processing Engine,Apache Spark (PySpark),Distributed stream transformations and window aggregations
+Storage Layer,PostgreSQL,Relational data warehouse storing structured output
+Containerization,Docker & Docker Compose,Infrastructure isolation and multi-container orchestration
+Language & Tooling,Python 3.10+ & SQL,"Core scripting, pipeline development, and data modeling"
