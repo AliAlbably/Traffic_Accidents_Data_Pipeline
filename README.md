@@ -1,126 +1,96 @@
-# 🚕 NYC Taxi Big Data Analytics Pipeline
+# 🚦 Traffic Accidents Big Data Pipeline & ML Engine
 
 [![Data Engineering](https://img.shields.io/badge/Domain-Data_Engineering-blue.svg)]()
-[![Apache Spark](https://img.shields.io/badge/ETL-PySpark_3.5-orange.svg)]()
+[![Apache Kafka](https://img.shields.io/badge/Streaming-Apache_Kafka-red.svg)]()
+[![Apache Spark](https://img.shields.io/badge/Engine-PySpark_3.5-orange.svg)]()
 [![Apache Hive](https://img.shields.io/badge/Warehouse-Apache_Hive_3.1-yellow.svg)]()
-[![Flask](https://img.shields.io/badge/Dashboard-Flask_--_Plotly.js-green.svg)]()
+[![Machine Learning](https://img.shields.io/badge/ML-Spark_MLlib-green.svg)]()
 [![Docker](https://img.shields.io/badge/Deployment-Docker_Compose-blue.svg)]()
 
-A containerized, enterprise-ready Big Data streaming and batch analytics pipeline built with **PySpark**, **Apache Hive**, **PostgreSQL**, and a live **Flask** interactive web dashboard — fully orchestratable via Docker so every team member gets an identical runtime environment with a single command.
+A containerized real-time streaming analytics pipeline and machine learning architecture for **Traffic Accidents Data**. Built with **Kafka**, **PySpark Streaming**, **Apache Hive**, **PostgreSQL Metastore**, and **Spark MLlib** for accident severity prediction — fully orchestrated via Docker Compose.
 
 ---
-
+   
 ## 📑 Table of Contents
 * [Overview & Architecture](#-overview--architecture)
 * [Tech Stack](#-tech-stack)
 * [Prerequisites](#-prerequisites)
 * [Quick Start & Setup Guide](#-quick-start--setup-guide)
-* [Web User Interfaces](#-web-user-interfaces)
+* [Open the UIs](#-open-the-uis)
 * [Project Structure](#-project-structure)
-* [Container Networking Rules](#-container-networking-rules)
 * [Stopping & Resetting Infrastructure](#-stopping--resetting-infrastructure)
 
 ---
 
 ## 📐 Overview & Architecture
 
-This pipeline ingests raw **NYC Yellow Taxi Parquet trip records**, performs complex distributed ETL transformations using PySpark, warehouses the clean aggregated data into Apache Hive tables backed by a PostgreSQL Metastore, and serves dynamic interactive visualizations over a custom Flask & Plotly web application.
+This pipeline simulates real-time traffic accident telemetry events via Kafka producers, processes batch and streaming accident records using PySpark, stores transformed aggregated tables in Apache Hive, and trains predictive Machine Learning models to analyze accident severity patterns.
 
 ```text
 ┌────────────────────────┐
-│ Raw Parquet Files      │
-│ (Mounted `./dataset/`) │
+│ Traffic Data Streams   │
+│ (producer.py)          │
+└───────────┬────────────┘
+            │ (Kafka Topics)
+            ▼
+┌────────────────────────┐
+│ PySpark Streaming      │  ◄── [Hive Metastore: thrift://hive-metastore:9083]
+│ (streaming_consumer.py)│
 └───────────┬────────────┘
             │
-            ▼ (Batch Transformation)
+            ▼ (Data Warehouse)
 ┌────────────────────────┐
-│     PySpark 3.5        │  ◄── [Hive Metastore: thrift://hive-metastore:9083]
-│     ETL Pipeline       │
+│ Apache Hive 3.1        │  ◄── [PostgreSQL 13 Metastore DB]
+│ (Data Mart & Tables)   │
 └───────────┬────────────┘
             │
-            ▼ (Structured Data Warehouse)
+            ▼ (Feature Engineering & ML)
 ┌────────────────────────┐
-│    Apache Hive 3.1     │  ◄── [PostgreSQL 13 Metadata Database]
-│  (HiveServer2 Engine)  │
-└───────────┬────────────┘
-            │
-            ▼ (PyHive SQL Interface)
-┌────────────────────────┐
-│  Flask & Plotly Web UI │ ──> [Interactive Live Dashboard @ localhost:8501]
+│ Spark MLlib Trainer    │ ──> [Accident Severity Model]
+│ (train_model.py)       │
 └────────────────────────┘
-
-
-
-git clone <your-repo-url>
-cd big-Data-project
-
-
-big-Data-project/
-└── dataset/
-    ├── yellow_tripdata_2025-01.parquet
-    ├── yellow_tripdata_2025-02.parquet
-    └── yellow_tripdata_2025-03.parquet
-
-# 1. Boot up PostgreSQL database container
+```
+git clone [https://github.com/AliAlbably/Traffic_Accidents_Data_Pipeline.git](https://github.com/AliAlbably/Traffic_Accidents_Data_Pipeline.git)
+cd Traffic_Accidents_Data_Pipeline
+```
 docker compose up -d postgres
-
-# 2. Run schema initialization tool for Hive metastore
 docker compose run --rm --entrypoint /opt/hive/bin/schematool hive-metastore -dbType postgres -initSchema
-
-# 3. Spin up all remaining infrastructure microservices in background
 docker compose up -d
-
-
-docker exec nychiveserver beeline \
-  -u "jdbc:hive2://localhost:10000/;auth=noSasl" -n hive \
-  -f /database_scripts/create_tables.hql
-
-
+```
+python producer.py
+```
 docker exec nycsparkmaster /opt/spark/bin/spark-submit \
   --master spark://spark-master:7077 \
   --conf spark.sql.catalogImplementation=hive \
   --conf spark.hadoop.hive.metastore.uris=thrift://hive-metastore:9083 \
-  --conf spark.sql.warehouse.dir=/opt/hive/warehouse \
-  /app/transform.py
-
-
-big-Data-project/
-├── .gitignore               # Ignores dataset/, .env, *.csv, *.parquet files
-├── README.md                # Project Architecture & Setup Guide
-├── docker-compose.yml       # Complete multi-container microservices definition
+  /app/streaming_consumer.py
+```
+docker exec nycsparkmaster /opt/spark/bin/spark-submit \
+  --master spark://spark-master:7077 \
+  /app/train_model.py
+  Traffic_Accidents_Data_Pipeline/
+  ```
+├── .gitignore                # Ignores dataset, .env, and temporal files
+├── README.md                 # Project Architecture & Setup Guide
+├── docker-compose.yml        # Docker microservices definitions
+├── requirements.txt          # Python dependencies
 │
-├── dataset/                 # Raw input Parquet data directory (Git-ignored)
+├── producer.py               # Kafka event streaming producer
+├── streaming_consumer.py     # PySpark streaming engine & Hive writer
+└── train_model.py            # Spark MLlib training script for accident predictions
+Traffic_Accidents_Data_Pipeline/
+├── .gitignore                # Ignores dataset, .env, and temporal files
+├── README.md                 # Project Architecture & Setup Guide
+├── docker-compose.yml        # Docker microservices definitions
+├── requirements.txt          # Python dependencies
 │
-├── spark_job/               # PySpark streaming and batch ETL scripts
-│   └── transform.py         # Main PySpark extraction & processing script
-│
-├── hive_setup/              # Data Warehouse definition & Hive configs
-│   ├── hive-site.xml        # Centralized Hive Metastore configuration settings
-│   └── create_tables.hql    # DDL script creating structured Hive tables
-│
-└── python_app/              # Flask Visualization Web Application
-    ├── Dockerfile
-    ├── main.py              # Flask server, handles Hive SQL queries & Plotly JSON
-    ├── requirements.txt      # Python runtime dependencies (pyhive, flask, etc.)
-    └── templates/
-        └── dashboard.html   # Custom Jinja2 Glassmorphism UI template with Plotly.js
-
-
-
-from pyhive import hive
-
-conn = hive.connect(
-    host="hive-server",   # <-- Use Docker service hostname, NOT localhost
-    port=10000,
-    database="nyc_taxi",
-    auth="NOSASL"
-)
-
-
-# Stop all running containers gracefully (preserves database state & volume data)
+├── producer.py               # Kafka event streaming producer
+├── streaming_consumer.py     # PySpark streaming engine & Hive writer
+└── train_model.py            # Spark MLlib training script for accident predictions
+```
+# Stop containers gracefully
 docker compose down
 
-# Stop and PURGE all persistent container volumes (Clean reset — requires re-running schematool)
+# Wipe containers and clean volumes
 docker compose down -v
-
-
+  
