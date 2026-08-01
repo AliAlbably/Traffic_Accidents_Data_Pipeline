@@ -57,10 +57,4 @@ Below is the end-to-end data processing workflow:
 │  (Persisted Storage)   │     │ (Dashboard Engine)     │
 └────────────────────────┘     └────────────────────────┘
 
-Component,Technology,Role / Description
-Event Broker,Apache Kafka,High-throughput streaming message buffer
-Cluster Manager,Apache Zookeeper,Service coordination and Kafka state management
-Processing Engine,Apache Spark (PySpark),Distributed stream transformations and window aggregations
-Storage Layer,PostgreSQL,Relational data warehouse storing structured output
-Containerization,Docker & Docker Compose,Infrastructure isolation and multi-container orchestration
-Language & Tooling,Python 3.10+ & SQL,"Core scripting, pipeline development, and data modeling"
+🛠️ Tech Stack & InfrastructureComponentTechnologyRole / DescriptionEvent BrokerApache KafkaHigh-throughput streaming message bufferCluster ManagerApache ZookeeperService coordination and Kafka state managementProcessing EngineApache Spark (PySpark)Distributed stream transformations and window aggregationsStorage LayerPostgreSQLRelational data warehouse storing structured outputContainerizationDocker & Docker ComposeInfrastructure isolation and multi-container orchestrationLanguage & ToolingPython 3.10+ & SQLCore scripting, pipeline development, and data modeling
