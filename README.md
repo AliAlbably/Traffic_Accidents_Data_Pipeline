@@ -1,38 +1,57 @@
-# 🚕 Real-Time NYC Taxi Data Analytics & Batch Processing Pipeline
+# 🚕 NYC Taxi Data Analytics & Real-Time Streaming Pipeline
 
-An end-to-end distributed Big Data pipeline designed to ingest, process, and analyze large-scale New York City Yellow Taxi transaction datasets. Engineered using **Apache Kafka**, **Apache Spark Streaming**, **PostgreSQL/InfluxDB**, and **Docker**.
+[![Data Engineering](https://img.shields.io/badge/Domain-Data_Engineering-blue.svg)]()
+[![Apache Kafka](https://img.shields.io/badge/Streaming-Apache_Kafka-red.svg)]()
+[![Apache Spark](https://img.shields.io/badge/Engine-Apache_Spark-orange.svg)]()
+[![Docker](https://img.shields.io/badge/Deployment-Docker-blue.svg)]()
+
+An end-to-end, enterprise-grade Big Data streaming & batch analytics pipeline designed to ingest, process, transform, and analyze multi-million record datasets of **New York City Yellow Taxi** trips in real time.
 
 ---
 
-## 📐 Architecture Overview
+## 📑 Table of Contents
+* [Overview & Business Motivation](#-overview--business-motivation)
+* [System Architecture](#-system-architecture)
+* [Tech Stack & Infrastructure](#-tech-stack--infrastructure)
+* [Data Pipeline Workflow](#-data-pipeline-workflow)
+* [Key Metrics & Analytics](#-key-metrics--analytics)
+* [Repository Structure](#-repository-structure)
+* [Setup & Installation Guide](#-setup--installation-guide)
+* [Future Roadmap](#-future-roadmap)
+
+---
+
+## 🎯 Overview & Business Motivation
+
+Processing urban transportation data requires high throughput, low latency, and efficient memory management. 
+
+This project solves the problem of analyzing large-scale NYC Taxi transactions by creating a fully containerized microservices architecture. It allows data engineers and analysts to monitor trip frequencies, high-demand pickup zones, tip percentages, and fare spikes live as transactions occur.
+
+---
+
+## 📐 System Architecture
+
+Below is the conceptual flow of the distributed pipeline:
 
 ```text
-[ NYC Taxi Dataset ] ──(Streaming Producer)──> [ Apache Kafka ] ──(Consumer Engine)──> [ Apache Spark ]
-                                                                                              │
-                                                                                              ├──> [ PostgreSQL / Data Warehouse ]
-                                                                                              └──> [ Real-Time Analytics Dashboard ]
-Data Ingestion (Producer): Streams taxi trip records continuously into Kafka topics using partitioned data chunking to optimize memory consumption.
-
-Event Broker (Kafka & Zookeeper): Acts as a resilient messaging layer that absorbs high-volume trip ingestion rates with low latency.
-├── docker-compose.yml           # Multi-Container Infrastructure Setup
-├── producer.py                  # Kafka Ingestion Producer Script
-├── consumer_spark.py            # PySpark Streaming & Aggregation Pipeline
-├── db_schema.sql                # Analytical Database Schemas
-├── requirements.txt             # Python Dependencies
-└── README.md                    # Project Documentation
-⚡ Key Pipeline Capabilities
-High-Throughput Streaming: Ingests and parses thousands of trip events per second seamlessly.
-
-Geospatial & Fare Analytics: Calculates dynamic trip distances, tip rates, high-density pickup zones, and peak revenue windows.
-
-Scalable Architecture: Fully containerized microservices ensuring simple deployment across staging and production environments.
-
-🚀 Quick Setup & Execution
-1️⃣ Spin Up Infrastructure
-docker-compose up -ddocker exec -it spark-master spark-submit \
-  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 \
-  consumer_spark.py
-python producer.py
-
-
-
+┌────────────────────────┐
+│  NYC Taxi CSV Dataset  │
+└───────────┬────────────┘
+            │ (Chunked Streaming Producer)
+            ▼
+┌────────────────────────┐
+│      Apache Kafka      │  ◄── [Zookeeper Orchestration]
+│  (Topic: taxi_trips)   │
+└───────────┬────────────┘
+            │ (Consumer Micro-batches)
+            ▼
+┌────────────────────────┐
+│ Apache Spark Streaming │  ◄── [PySpark Engine & SQL Rules]
+└───────────┬────────────┘
+            │
+            ├───────────────────────────────┐
+            ▼                               ▼
+┌────────────────────────┐     ┌────────────────────────┐
+│ PostgreSQL / TimeSeries│     │ Analytical Dashboards  │
+│  (Persisted Storage)   │     │ (Real-Time Metrics UI) │
+└────────────────────────┘     └────────────────────────┘
