@@ -10,8 +10,9 @@
 A containerized real-time streaming analytics pipeline and machine learning architecture for **Traffic Accidents Data**. Built with **Kafka**, **PySpark Streaming**, **Apache Hive**, **PostgreSQL Metastore**, and **Spark MLlib** for accident severity prediction — fully orchestrated via Docker Compose.
 
 ---
-   
+
 ## 📑 Table of Contents
+
 * [Overview & Architecture](#-overview--architecture)
 * [Tech Stack](#-tech-stack)
 * [Prerequisites](#-prerequisites)
@@ -50,34 +51,85 @@ This pipeline simulates real-time traffic accident telemetry events via Kafka pr
 │ (train_model.py)       │
 └────────────────────────┘
 ```
-git clone [https://github.com/AliAlbably/Traffic_Accidents_Data_Pipeline.git](https://github.com/AliAlbably/Traffic_Accidents_Data_Pipeline.git)
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Purpose / Description |
+|---|---|---|
+| **Containerization** | Docker & Docker Compose | Multi-container architecture setup |
+| **Message Broker** | Apache Kafka & Zookeeper | Real-time event ingestion for traffic telemetry |
+| **Processing Engine** | PySpark 3.5 (Streaming & Batch) | Distributed streaming ETL and feature generation |
+| **Data Warehouse** | Apache Hive 3.1 | Structured data warehouse engine |
+| **Metastore DB** | PostgreSQL 13 | Metadata storage for Hive schema definitions |
+| **Machine Learning** | Spark MLlib | Model training and classification for accident severity |
+
+---
+
+## 📋 Prerequisites
+
+```text
+• Docker Desktop installed and running.
+• Git CLI installed.
+```
+
+---
+
+## 🚀 Quick Start & Setup Guide
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/AliAlbably/Traffic_Accidents_Data_Pipeline.git
 cd Traffic_Accidents_Data_Pipeline
 ```
+
+### 2. Boot up PostgreSQL & Initialize Hive Metastore
+```bash
 docker compose up -d postgres
 docker compose run --rm --entrypoint /opt/hive/bin/schematool hive-metastore -dbType postgres -initSchema
 docker compose up -d
 ```
+
+### 3. Start Streaming Producer
+Run the Python event producer to stream traffic accident data into Kafka:
+```bash
 python producer.py
 ```
+
+### 4. Execute Streaming Consumer (PySpark)
+Process live streams and persist records directly to Hive:
+```bash
 docker exec nycsparkmaster /opt/spark/bin/spark-submit \
   --master spark://spark-master:7077 \
   --conf spark.sql.catalogImplementation=hive \
   --conf spark.hadoop.hive.metastore.uris=thrift://hive-metastore:9083 \
   /app/streaming_consumer.py
 ```
+
+### 5. Train Accident Severity Model
+Submit the machine learning pipeline script:
+```bash
 docker exec nycsparkmaster /opt/spark/bin/spark-submit \
   --master spark://spark-master:7077 \
   /app/train_model.py
-  Traffic_Accidents_Data_Pipeline/
-  ```
-├── .gitignore                # Ignores dataset, .env, and temporal files
-├── README.md                 # Project Architecture & Setup Guide
-├── docker-compose.yml        # Docker microservices definitions
-├── requirements.txt          # Python dependencies
-│
-├── producer.py               # Kafka event streaming producer
-├── streaming_consumer.py     # PySpark streaming engine & Hive writer
-└── train_model.py            # Spark MLlib training script for accident predictions
+```
+
+---
+
+## 🌐 Open the UIs
+
+| UI | URL | Description |
+|---|---|---|
+| **Spark Master UI** | [http://localhost:8090](http://localhost:8090) | Spark cluster master dashboard |
+| **Spark Worker UI** | [http://localhost:8081](http://localhost:8081) | Worker node executors & resources |
+| **HiveServer2 Web UI** | [http://localhost:10002](http://localhost:10002) | HiveServer2 status dashboard |
+
+---
+
+## 📁 Project Structure
+
+```text
 Traffic_Accidents_Data_Pipeline/
 ├── .gitignore                # Ignores dataset, .env, and temporal files
 ├── README.md                 # Project Architecture & Setup Guide
@@ -88,9 +140,14 @@ Traffic_Accidents_Data_Pipeline/
 ├── streaming_consumer.py     # PySpark streaming engine & Hive writer
 └── train_model.py            # Spark MLlib training script for accident predictions
 ```
+
+---
+
+## 🛑 Stopping & Resetting Infrastructure
+
+```bash
 # Stop containers gracefully
 docker compose down
 
 # Wipe containers and clean volumes
 docker compose down -v
-  
